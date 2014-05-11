@@ -246,9 +246,10 @@ void lval_print(lval* v) {
 		case LVAL_FUN: printf("<function>"); break;
 		case LVAL_ERR: printf("Error: %s", v->err); break;
 		case LVAL_SYM: printf("%s", v->sym); break;
-		/* recurse if it's an sexpr */
-		case LVAL_SEXPR: lval_expr_print(v, '(', ')'); break;
-		case LVAL_QEXPR: lval_expr_print(v, '{', '}'); break;
+		/* recurse if it's an (s|q)expr */
+		case LVAL_SEXPR:
+		case LVAL_QEXPR:
+			lval_expr_print(v, '(', ')'); break;
 	}	
 }
 
@@ -374,7 +375,7 @@ lval* builtin_head(lenv* e, lval* a) {
 	/* error check! Note the inversion of equality */
 	LASSERT(a, (a->count == 1), "'head' passed too many arguments; '1' expected, '%i' given.", a->count);
 	LASSERT(a, (a->cell[0]->type == LVAL_QEXPR), "'head' passed incorrect type; '%s' expected, '%s' given.", ltype_name(LVAL_QEXPR), ltype_name(a->cell[0]->type));
-	LASSERT(a, (a->cell[0]->count != 0), "'head' passed {}!");
+	LASSERT(a, (a->cell[0]->count != 0), "'head' passed '()!");
 
 	/* otherwise take first and delete the rest */
 	lval* v = lval_take(a, 0);
@@ -390,7 +391,7 @@ lval* builtin_tail(lenv* e, lval* a) {
 	/* error check! Note the inversion of equality */
 	LASSERT(a, (a->count == 1), "'tail' passed too many arguments; '1' expected, '%i' given.", a->count);
 	LASSERT(a, (a->cell[0]->type == LVAL_QEXPR), "'tail' passed incorrect type; '%s' expected, '%s' given.", ltype_name(LVAL_QEXPR), ltype_name(a->cell[0]->type));
-	LASSERT(a, (a->cell[0]->count != 0), "'tail' passed {}!");
+	LASSERT(a, (a->cell[0]->count != 0), "'tail' passed '()!");
 
 	/* take the first */
 	lval* v = lval_take(a, 0);
@@ -588,8 +589,8 @@ lval* lval_read(mpc_ast_t* t) {
 	for (int i = 0; i < t->children_num; i++) {
 		if (strcmp(t->children[i]->contents, "(") == 0) { continue; }
 		if (strcmp(t->children[i]->contents, ")") == 0) { continue; }
-		if (strcmp(t->children[i]->contents, "{") == 0) { continue; }
-		if (strcmp(t->children[i]->contents, "}") == 0) { continue; }
+		if (strcmp(t->children[i]->contents, "'(") == 0) { continue; }
+		//if (strcmp(t->children[i]->contents, ")") == 0) { continue; }
 		if (strcmp(t->children[i]->tag, "regex") == 0)  { continue; }
 		x = lval_add(x, lval_read(t->children[i]));
 	}
@@ -611,7 +612,7 @@ int main(int argc, char** argv) {
 		number   : /-?[0-9]+/ ;                       \
 		symbol   : /[a-zA-Z0-9_+\\-*\\/\\\\=<>!&]+/ ; \
 		sexpr    : '(' <expr>* ')' | <number> ;       \
-		qexpr    : '{' <expr>* '}' ;                  \
+		qexpr    : \"'(\" <expr>* ')' ;                  \
 		expr     : <number> | <symbol> | <sexpr> | <qexpr> ; \
 	",
 	Number, Symbol, Sexpr, Qexpr, Expr);
