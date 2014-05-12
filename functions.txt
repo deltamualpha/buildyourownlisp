@@ -1,0 +1,11 @@
+Useful lispy functions:
+
+Not: (def {!} (fun {a} {if a {0} {1}}))
+And: (def {and} (fun {a b} {if a {if b {1} {0}} {0}}))
+Or:  (def {or} (fun {a b} {if a {1} {if b {1} {0}}}))
+
+len:  (def {len} (fun {list} {if (== list {}) {0} {+ 1 (len (tail list))}}))
+nth:  (def {nth} (fun {count list} {if (!= count 0) {nth (- count 1) (tail list)} {(head list)}}))
+last: (def {last} (fun {list} {if (!= (len list) 1) {last (tail list)} {list}}))
+
+reverse: (def {reverse} (fun {list} {if (== list {}) {{}} {join (reverse (tail list)) (head list)} }))
