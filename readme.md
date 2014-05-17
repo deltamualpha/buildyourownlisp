@@ -3,7 +3,7 @@ This is a repo for my own implementation of [Build Your Own Lisp](http://buildyo
 ## Deviations from the book
 
 * My version of the lispy syntax dispenses with the special `lispy` root and instead treats expressions as the root item. This means that all S-expressions must be wrapped in the [syntax of the gods](http://www.xkcd.com/224/), as opposed to the bare structures the default syntax allows. This only really presented problems at the very end, where I had a segfault on external library load related to how I had been defining what an `Expr` was in the `mpca_lang` call.
-* I didn't bother keeping around the portable readline() implementation, as this was all done on one MacBook.
+* I didn't bother keeping around the portable `readline()` implementation, as this was all done on one MacBook.
 * I experimented with replacing the odd `{}` syntax with the more familiar `'()` style, but haven't fully implemented it. (There's some `putchar`->`print` switches to be made that I didn't feel like tracking down.)
 
 ## Known issues
